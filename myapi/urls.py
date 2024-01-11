@@ -7,6 +7,7 @@ from .views import test_backend
 # ]
 
 urlpatterns = [
-    path('test-backend/', test_backend, name='test_backend')
+    path('test-backend/', test_backend, name='test_backend'),
+    # path('dashboard/', views.dashboard, name='dashboard')
 ]
 
