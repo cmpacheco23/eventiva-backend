@@ -32,4 +32,14 @@ class Trips(models.Model):
     else:
       return None
     
-    
+class Poll(models.Model):
+      event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='polls')
+      pub_date = models.DateTimeField(auto_now_add=True)
+      duration = models.CharField(max_length=10, choices=[('12hrs', '12 hours'), ('24hrs', '24 hours'), ('48hrs', '48 hours'), ('72hrs', '72 hours')])
+      result = models.CharField(max_length=255)
+      option1 = models.CharField(max_length=255, blank=True, null=True)
+      option2 = models.CharField(max_length=255, blank=True, null=True)
+      option3 = models.CharField(max_length=255, blank=True, null=True)
+      option4 = models.CharField(max_length=255, blank=True, null=True)
+      option5 = models.CharField(max_length=255, blank=True, null=True)
+      option6 = models.CharField(max_length=255, blank=True, null=True)
