@@ -22,3 +22,11 @@ class Event(models.Model):
   # need to add the poll embed
   # need to add the profile ref
   
+class Trips(models.Model):
+  # travelers = ref profile
+  event = models.OneToOneField(Event, on_delete=models.CASCADE)
+  def duration(self):
+    if self.event.eventType == 'Trip':
+      return (self.event.endDate - self.event.startDate).days
+    else:
+      return None
