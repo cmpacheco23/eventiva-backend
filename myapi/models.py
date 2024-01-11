@@ -31,3 +31,5 @@ class Trips(models.Model):
       return (self.event.endDate - self.event.startDate).days
     else:
       return None
+    
+    
