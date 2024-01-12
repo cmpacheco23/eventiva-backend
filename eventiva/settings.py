@@ -11,6 +11,16 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from appwrite.client import Client
+
+from dotenv import load_dotenv
+load_dotenv()
+
+appwrite_client = Client()
+appwrite_client.set_endpoint(os.getenv('APPWRITE_ENDPOINT'))
+appwrite_client.set_project(os.getenv('APPWRITE_PROJECT_ID'))
+appwrite_client.set_key(os.getenv('APPWRITE_API_KEY'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

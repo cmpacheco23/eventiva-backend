@@ -2,7 +2,8 @@ from datetime import datetime, timedelta, date
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
-
+from appwrite.client import Client
+from appwrite.services.users import Users
 
 # Create your models here.
 
