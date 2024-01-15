@@ -4,6 +4,9 @@ from django.utils import timezone
 from django.urls import reverse
 from appwrite.client import Client
 from appwrite.services.users import Users
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 # Create your models here.
 
@@ -18,7 +21,7 @@ class AppUser(models.Model):
     return self.name
 
 class Profile(models.Model):
-  app_users = models.OneToOneField('AppUser', on_delete=models.CASCADE)
+  app_user = models.OneToOneField('AppUser', on_delete=models.CASCADE)
   avatar = models.ImageField(upload_to='profile_avatars/', blank=True, null=True)
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
@@ -28,26 +31,63 @@ class Event(models.Model):
     TRIP = 'Trip'
     ACTIVITY = 'Activity'
   name = models.CharField(max_length=150)
-  start_date = models.DateField('Start Date', default=str(timezone.now))
-  end_date = models.DateField('End Date', default= str(timezone.now() + timezone.timedelta(days=1)))
+  start_date = models.DateField('Start Date', default=timezone.now)
+  end_date = models.DateField('End Date', default=timezone.now() + timezone.timedelta(days=1))
   location = models.CharField(max_length=250, default='')
-  description = models.TextField()
-  event_owner = models.ForeignKey('Profile', on_delete=models.CASCADE)
+  description = models.TextField(default='Your default description here')
+  event_owner = models.ForeignKey('Profile', on_delete=models.CASCADE, default=None)
   event_type = models.CharField(
     max_length=20,
     choices=EventType.choices,
     default=EventType.TRIP,
   )
+
+  def save(self, *args, **kwargs):
+    if not self.event_owner:
+      project_id = os.getenv('APPWRITE_PROJECT_ID')
+      key = os.getenv('APPWRITE_API_KEY')
+      
+      client = Client()
+      client.set_project(project_id)
+      client.set_key(key)
+      
+      
+      # Get user details from the Appwrite SDK
+      user = client.users.get_user()
+
+      # Assuming the user has a related Profile
+      app_user_profile = user.profile
+      self.event_owner = app_user_profile
+
+    super().save(*args, **kwargs)
   
 class Trips(models.Model):
   # travelers = ref profile
   event = models.ForeignKey(Event, on_delete=models.CASCADE)
-  profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='trips')
+  profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='trips', default=None)
   def duration(self):
     if self.event.event_type == 'Trip':
       return (self.event.end_date - self.event.start_date).days
     else:
       return None
+    
+  def save(self, *args, **kwargs):
+    if not self.profile:
+      project_id = os.getenv('APPWRITE_PROJECT_ID')
+      key = os.getenv('APPWRITE_API_KEY')
+      
+      client = Client()
+      client.set_project(project_id)
+      client.set_key(key)
+      
+      # Get user details from the Appwrite SDK
+      user = client.users.get_user()
+
+      # Assuming the user has a related Profile
+      app_user_profile = user.profile
+      self.profile = app_user_profile
+
+    super().save(*args, **kwargs)
     
 class Poll(models.Model):
   event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='polls')
